@@ -64,34 +64,37 @@ def check_board(board, conn=4):
         board (list of lists)
 
     """
-    v_edge = len(board) - 1
-    h_edge = len(board[0]) - 1
+    v_edge = len(board)
+    h_edge = len(board[1])
 
-    def explore_surr():
+    def explore_surr(row_idx, col_idx, color):
 
         def on_board(position):
-            return (0 <= position[0] < h_edge) and (0 <= position[1] < v_edge)
+            return (0 <= position[1] < h_edge) and (0 <= position[0] < v_edge)
 
-        def get_next_in_direction(direction, point):
-            {'north': (point[0], point[1] + 1),
-             'ne': (point[0] + 1, point[1] + 1),
-             'east': (point[0] + 1, point[1]),
-             'se': (point[0] + 1, point[1] - 1)}
-            return point[direction]
+        def get_next_in_direction(point, direction):
+            next_points = {'north': (point[0] + 1, point[1]),
+                            'ne': (point[0] + 1, point[1] + 1),
+                            'east': (point[0], point[1] + 1),
+                            'se': (point[0] - 1, point[1] + 1)}
+            return next_points[direction]
 
         def explore_len(position, direction):
-            for move in range(conn) - 1:
+            print('exploring the length')
+            for move in range(conn - 1):
+                print('another one')
                 next_point = get_next_in_direction(position, direction)
                 if not (on_board(next_point) and board[next_point[0]][next_point[1]] == color):
                     return False
             return True
 
-        card = {'north' : (row_idx, col_idx + 1),
+        card = {'north' : (row_idx + 1, col_idx),
                 'ne'  : (row_idx + 1, col_idx + 1),
-                'east'  : (row_idx + 1, col_idx),
-                'se'  : (row_idx + 1, col_idx - 1)}
+                'east'  : (row_idx , col_idx + 1),
+                'se'  : (row_idx - 1, col_idx + 1)}
 
-        for k,v in card.items()
+        for k,v in card.items():
+            print('exploring adjacent piece {}, {}'.format(k, v))
             if on_board(v) and board[v[0]][v[1]] == color:
                 result = explore_len(v, k)
                 if result:
@@ -99,12 +102,20 @@ def check_board(board, conn=4):
 
     for row_idx, row in enumerate(board):
         for col_idx, val in enumerate(row):
+            print('inspecting {0}, {1}, color is {2}'.format(row_idx,
+                                                              col_idx,
+                                                              board[row_idx][col_idx]))
 
-            if board[row_idx, col_idx] == 'R' or board[row_idx, col_idx] == 'B':
-                cpos = (row_idx, col_idx)
+
+            if board[row_idx][col_idx] == 'R' or board[row_idx][col_idx] == 'B':
+                print('piece is colored')
                 color = val
-                result = explore_surr(cpos)
+                result = explore_surr(row_idx, col_idx, color)
                 if result:
                     return True
     return False
-
+if __name__ == '__main__':
+    board = [['E', 'B', 'E'],
+            ['R', 'B', 'R']]
+    res = check_board(board, conn=2)
+    assert res
