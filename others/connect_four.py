@@ -72,13 +72,6 @@ def check_board(board, conn=4):
         def on_board(position):
             return (0 <= position[1] < h_edge) and (0 <= position[0] < v_edge)
 
-        def get_next_in_direction(point, direction):
-            next_points = {'north': (point[0] + 1, point[1]),
-                            'ne': (point[0] + 1, point[1] + 1),
-                            'east': (point[0], point[1] + 1),
-                            'se': (point[0] - 1, point[1] + 1)}
-            return next_points[direction]
-
         def explore_len(position, direction):
             print('exploring the length')
             for move in range(conn - 1):
@@ -88,6 +81,20 @@ def check_board(board, conn=4):
                     return False
             return True
 
+        def recurs(n_in_a_row, conn, point):
+            print('exploring the length')
+            next_points = {'north': (point[0] + 1, point[1]),
+                            'ne': (point[0] + 1, point[1] + 1),
+                            'east': (point[0], point[1] + 1),
+                            'se': (point[0] - 1, point[1] + 1)}
+            if n_in_a_row == conn:
+                return True
+            else:
+                if on_board(point) and board[point[0]][point[1]] == color:
+                    print('another one')
+                    n_in_a_row += 1
+                    return recurs(n_in_a_row, conn, point)
+
         card = {'north' : (row_idx + 1, col_idx),
                 'ne'  : (row_idx + 1, col_idx + 1),
                 'east'  : (row_idx , col_idx + 1),
@@ -95,10 +102,13 @@ def check_board(board, conn=4):
 
         for k,v in card.items():
             print('exploring adjacent piece {}, {}'.format(k, v))
+            n_in_a_row = 1
             if on_board(v) and board[v[0]][v[1]] == color:
-                result = explore_len(v, k)
-                if result:
+                n_in_a_row += 1
+                res = recurs(n_in_a_row, conn, (row_idx, col_idx))
+                if res:
                     return True
+
 
     for row_idx, row in enumerate(board):
         for col_idx, val in enumerate(row):
@@ -119,3 +129,7 @@ if __name__ == '__main__':
             ['R', 'B', 'R']]
     res = check_board(board, conn=2)
     assert res
+    board = [['E', 'E', 'E'],
+            ['R', 'B', 'R']]
+    res = check_board(board, conn=2)
+    assert not res
